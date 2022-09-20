@@ -1,20 +1,33 @@
-#define SENSORPIN A0
-#define SERVOPAN 5
-#define SERVOTILT 6
-
 #include "Arduino.h"
 
-#include <Servo.h>
+#define BAUD_RATE 115200
+
+String commandString = "";
 
 void setup () {
-  pinMode(SERVOPAN, OUTPUT);
-  pinMode(SERVOTILT, OUTPUT);
-
-  Serial.begin(9600);
+  Serial.begin(BAUD_RATE);
+  Serial.println("Hello World");
 }
 
 void loop () {
-  int distanceSensor = analogRead(SENSORPIN);
-  Serial.print("Measured Value: ");
-  Serial.println(distanceSensor);
+  commandString = "";
+  if (Serial.available()) {
+    commandString = Serial.readStringUntil('\n');
+    // Return a set of points representing fake scan data on receiving SCAN
+    if (commandString.equals("SCAN")) {
+      Serial.print("[");
+      for (int tilt = 0; tilt <= 90; tilt += 5) {
+        for (int pan = 0; pan <= 180; pan += 5) {
+          char dataPoint[40];
+          int distance = 5;
+          if ((30 <= tilt) && (pan <= 60)) {
+              distance = 3000;
+            }
+          sprintf(dataPoint, "(%d,%d,%d),", tilt, pan, distance);
+          Serial.print(dataPoint);
+        }
+      }
+      Serial.println("]");
+    }
+  }
 }
