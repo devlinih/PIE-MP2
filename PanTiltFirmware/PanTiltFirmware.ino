@@ -25,11 +25,8 @@ void setup()
   pan.attach(3);  // Servo on D3
   tilt.attach(5); // Servo on D5
 
-  // TODO move the servos to the start position
-
   // don't scan yet
   scanning = false;
-  samples = 0;
 }
 
 // main loop
@@ -47,10 +44,10 @@ void loop()
       samples += 1;
       sendData();
     }
-    else // finished sampling
+    else // finished scanning
     {
+      // return to listening for the scan signal
       scanning = false;
-      samples = 0;
     }
   }
 }
@@ -61,16 +58,28 @@ void readSerialBuffer()
   String command = Serial.readStringUntil('\n'); // read until timeout
   command.trim();                                // remove white space or \n
   if (command.substring(2) == "SCAN")
-  {
-    scanning = true;
+  { // prepare the system to start scanning
+    pan.write(90);  // set pan to staring position 
+    tilt.write(90); // set tilt to staring position
+    delay(3000); 
+
     // begin writing to serial
     Serial.print("[");
+
+    // empty sample count
+    samples = 0;
+
+    // begin scanning in next loop
+    scanning = true;
   }
 }
 
 void panTilt()
 {
   // move servos a little bit
+  pan.write(90+(samples*10)); // PLACEHOLDER
+  pan.write(90-(samples*10)); // PLACEHOLDER
+  delay(150);
 }
 
 uint16_t readIR()
