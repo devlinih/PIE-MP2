@@ -9,6 +9,7 @@ Servo tilt;           // create servo object for tilt
 int pan_deg;          // global variable to store the pan servo position
 int tilt_deg;         // global variable to store the tilt servo position
 bool scanning;        // global vaiable to indicate if the Arduimo should be scanning
+// bool finished;        // if the scanning routine is complete (MIGHT BE PLACEHOLDER)
 
 // function prototypes for organization
 void readSerialBuffer();
@@ -41,7 +42,7 @@ void loop()
     sendData();
 
     // TODO this is a placeholder so it doesn't run forever but eventually
-    //  need to impliment logic to decide when it's done scanning
+    // need to impliment logic to decide when it's done scanning
     scanning = false;
   }
 }
@@ -54,12 +55,25 @@ void readSerialBuffer()
   if (command.substring(2) == "SCAN")
   {
     scanning = true;
+    // begin writing to serial
+    Serial.print("[");
   }
 }
 
 void panTilt()
 {
-  // move servos
+  // move servos a little bit
+}
+
+uint16_t readIR()
+{
+  // helper functio to read IR sensor
+  uint16_t v1, v2, v3;
+  v1 = analogRead(0);
+  v2 = analogRead(0);
+  v3 = analogRead(0);
+  // take the lowest of three samples to filter out spikes
+  return min(min(v1, v2), v3);
 }
 
 void sendData() // NOTE: currenly sends chunks of data at a time
@@ -69,15 +83,13 @@ void sendData() // NOTE: currenly sends chunks of data at a time
   tilt_deg = 0; // default for initial testing
 
   // get voltage of IR sensor
-  int sensor = 0; // default for initial testing
-
-  //TODO if it's the first time add '['
-  //TODO if it's the second time add ','
-  //TODO if it's the last time add ']'
+  uint16_t sensor = readIR();
 
   // write to serial to send back to python script
   Serial.print("(");
   Serial.print(pan_deg);  Serial.print(",");
   Serial.print(tilt_deg); Serial.print(",");
   Serial.print(sensor);   Serial.print(")");
+  //TODO if it's the second time add ','
+  //TODO if it's the last time add ']'
 }
