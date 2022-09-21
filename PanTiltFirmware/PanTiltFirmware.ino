@@ -3,13 +3,12 @@
 
 #include <Servo.h>
 
-const int SENSOR = 0; // IR distance sensor on A0
-Servo pan;            // create servo object for pan
-Servo tilt;           // create servo object for tilt
-int pan_deg;          // global variable to store the pan servo position
-int tilt_deg;         // global variable to store the tilt servo position
-bool scanning;        // global vaiable to indicate if the Arduimo should be scanning
-// bool finished;        // if the scanning routine is complete (MIGHT BE PLACEHOLDER)
+const int SENSOR = 0;       // IR distance sensor on A0
+Servo pan;                  // create servo object for pan
+Servo tilt;                 // create servo object for tilt
+bool scanning;              // global vaiable to indicate if the Arduimo should be scanning
+int samples;                // the number of samples taken for each scan
+const int ALL_SAMPLES = 3;  // total number of samples per scan
 
 // function prototypes for organization
 void readSerialBuffer();
@@ -26,7 +25,11 @@ void setup()
   pan.attach(3);  // Servo on D3
   tilt.attach(5); // Servo on D5
 
-  // todo move the servos to the start position
+  // TODO move the servos to the start position
+
+  // don't scan yet
+  scanning = false;
+  samples = 0;
 }
 
 // main loop
@@ -38,12 +41,17 @@ void loop()
   }
   else
   { // do the scanning things
-    panTilt();
-    sendData();
-
-    // TODO this is a placeholder so it doesn't run forever but eventually
-    // need to impliment logic to decide when it's done scanning
-    scanning = false;
+    if (samples < ALL_SAMPLES)
+    {
+      panTilt();
+      samples += 1;
+      sendData();
+    }
+    else // finished sampling
+    {
+      scanning = false;
+      samples = 0;
+    }
   }
 }
 
@@ -67,7 +75,7 @@ void panTilt()
 
 uint16_t readIR()
 {
-  // helper functio to read IR sensor
+  // helper function to read IR sensor
   uint16_t v1, v2, v3;
   v1 = analogRead(0);
   v2 = analogRead(0);
@@ -79,8 +87,8 @@ uint16_t readIR()
 void sendData() // NOTE: currenly sends chunks of data at a time
 {
   // get current position of servos in degrees
-  pan_deg = 0;  // default for initial testing
-  tilt_deg = 0; // default for initial testing
+  int pan_deg = pan.read();
+  int tilt_deg = tilt.read();
 
   // get voltage of IR sensor
   uint16_t sensor = readIR();
@@ -90,6 +98,14 @@ void sendData() // NOTE: currenly sends chunks of data at a time
   Serial.print(pan_deg);  Serial.print(",");
   Serial.print(tilt_deg); Serial.print(",");
   Serial.print(sensor);   Serial.print(")");
-  //TODO if it's the second time add ','
-  //TODO if it's the last time add ']'
+
+  // add separator between each scan
+  if (samples < ALL_SAMPLES)
+  {
+    Serial.print(",");
+  }
+  else //end of transmission
+  {
+    Serial.print("]");
+  }
 }
