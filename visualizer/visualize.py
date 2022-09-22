@@ -58,9 +58,11 @@ def process_raw_point(point, offset):
     Returns:
         A tuple of three numbers representing a position in x, y, z.
     """
-    pan, tilt, voltage = point
-    return spherical_to_cartesian((pan, tilt,
-                                   voltage_to_distance(voltage) + offset))
+    pan, faux_tilt, voltage = point
+    distance = voltage_to_distance(voltage) + offset
+    tilt = 90 - faux_tilt # 0 degrees should be vertical, not horizontal.
+
+    return spherical_to_cartesian((pan, tilt, offset))
 
 
 def process_raw_points(points, cutoff_voltage, offset):
