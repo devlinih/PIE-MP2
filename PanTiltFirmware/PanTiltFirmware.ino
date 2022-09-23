@@ -6,14 +6,12 @@
 const int SENSOR = 0;         // IR distance sensor on A0
 Servo pan;                    // create servo object for pan
 Servo tilt;                   // create servo object for tilt
-int samples;                  // the number of samples taken for each scan
-const int ALL_SAMPLES = 3;    // total number of samples per scan
 
 // set scanning resolution
-const int TILT_INTERVAL = 20; // move 20 degrees down between each pan row
-const int PAN_INTERVAL = 5;   // send data every 5 degrees while panning
+const int TILT_INTERVAL = 20; // move 20 degrees down between each pan row, MUST be evenly divisable by max-min tilt degrees
 const int MAX_TILT_DEG = 120; // maximum tilt position (degree)
 const int MIN_TILT_DEG = 60;  // minimum tilt postion (degree)
+const int PAN_INTERVAL = 5;   // frequency of data scans per pan in degrees, MUST be evenly divisable by max-min pan degrees
 const int MAN_PAN_DEG = 180;  // maximum pan position (degree)
 const int MIN_PAN_DEG = 0;    // minimum pan position (degree)
 
@@ -64,19 +62,25 @@ void loop()
 
 void scan1() // use only tilt servo
 {
-  for (int tilt_deg = MIN_TILT_DEG; tilt_deg < MAX_TILT_DEG; tilt_deg += TILT_INTERVAL)
+  for (int tilt_deg = MIN_TILT_DEG; tilt_deg <= MAX_TILT_DEG; tilt_deg += TILT_INTERVAL)
   {
     tilt.write(tilt_deg);
     delay(150);
     sendData();
+    // comma after tuple?
+    if (tilt_deg < MAX_TILT_DEG)
+    {
+      Serial.print(",");
+    } 
   }
   // scan complete, return to listening
+  Serial.print("]");
   state = LISTENING;
 }
 
 void scan2() // uses both pan and tilt servos
 {
-  for (int tilt_deg = MIN_TILT_DEG; tilt_deg < MAX_TILT_DEG; tilt_deg += TILT_INTERVAL)
+  for (int tilt_deg = MIN_TILT_DEG; tilt_deg <= MAX_TILT_DEG; tilt_deg += TILT_INTERVAL)
   {
     // tilt after each full pan
     tilt.write(tilt_deg);
@@ -90,9 +94,15 @@ void scan2() // uses both pan and tilt servos
       delay(150);
       // send data over serial
       sendData();
+      // comma between readings
+      if (tilt_deg < MAX_TILT_DEG)
+      {
+        Serial.print(",");
+      } 
     }
   }
   // scan complete, return to listening
+  Serial.print("]");
   state = LISTENING;
 }
 
@@ -117,6 +127,12 @@ void readSerialBuffer()
     Serial.print("[");
     // start scanning mode 2 in next loop
     state = SCAN2;
+  }
+  else if (command.substring(2) == "CALIBRATE")
+  {
+    Serial.print("[");
+    sendData();
+    Serial.print("]");
   }
 }
 
@@ -148,14 +164,4 @@ void sendData() // NOTE: sends chunks of data at a time
   Serial.print(",");
   Serial.print(sensor);
   Serial.print(")");
-
-  // add separator between each scan
-  if (samples < ALL_SAMPLES)
-  {
-    Serial.print(",");
-  }
-  else // end of transmission
-  {
-    Serial.print("]");
-  }
 }
