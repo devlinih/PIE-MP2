@@ -24,6 +24,8 @@ def voltage_to_reading(voltage):
     return voltage * (1023/5)
 
 
+# TODO: Refactor the whole voltage to distance system. Since we need to
+# calibrate anyways, we can just use Arduino readings.
 def voltage_to_distance(voltage):
     """
     Convert voltage to a distance in centemeters.
@@ -39,6 +41,7 @@ def voltage_to_distance(voltage):
     b = 1.044
     return a * math.exp(-b * voltage)
 
+
 def spherical_to_cartesian(point):
     """
     Convert a point in spherical coordinates to a point in cartesian coordinates.
@@ -51,9 +54,7 @@ def spherical_to_cartesian(point):
         A tuple of three numbers in the form (x, y, z). The units are dependant
         on the unit of the originally passed distance.
     """
-    pan = math.radians(point[0])  # theta
-    tilt = math.radians(point[1]) # phi
-    distance = point[2]           # rho
+    pan, tilt, distance = point
 
     x = distance * math.sin(tilt) * math.cos(pan)
     y = distance * math.sin(tilt) * math.sin(pan)
@@ -76,11 +77,9 @@ def process_raw_point(point, offset):
     Returns:
         A tuple of three numbers representing a position in x, y, z.
     """
-    pan, faux_tilt, reading = point
-    voltage = reading_to_voltage(reading)
-    distance = voltage_to_distance(voltage) + offset
-    tilt = 90 - faux_tilt # 0 degrees should be vertical, not horizontal.
-
+    pan = math.radians(point[0])
+    tilt = math.radians(90 - point[1])
+    distance = voltage_to_distance(reading_to_voltage(point[2]))
     return spherical_to_cartesian((pan, tilt, distance))
 
 
