@@ -9,6 +9,7 @@ import serial
 import serial.tools.list_ports as list_ports
 
 BAUDRATE = 115200
+ARDUINO_TIMEOUT = 3
 
 # List of Arduino IDs provided by Brad
 # https://github.com/bminch/PIE/blob/main/Serial_cmd.py
