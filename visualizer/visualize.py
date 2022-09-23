@@ -6,20 +6,38 @@ import math
 from matplotlib import pyplot as plt
 
 
+def reading_to_voltage(reading):
+    """
+    Convert Arduino analogRead() to a voltage.
+
+    Assumes 10 bit.
+    """
+    return reading * (5/1023)
+
+
+def voltage_to_reading(voltage):
+    """
+    Convert a voltage to an Arduino reading.
+
+    Assumes 10 bit.
+    """
+    return voltage * (1023/5)
+
+
 def voltage_to_distance(voltage):
     """
-    Convert reading from Arduino analogWrite to a distance in inches.
+    Convert voltage to a distance in centemeters.
 
     Args:
-        voltage: An integer from 0 to 4095 representing a reading from the
-            distance sensor.
+        voltage: A number representing a voltage reading from the distance
+            sensor.
 
     Returns:
-        A float representing a distance in inches.
+        A float representing a distance in centemeters.
     """
-    # TODO: Need to figure out transfer function.
-    return voltage
-
+    a = 217.7
+    b = 1.044
+    return a * math.exp(-b * voltage)
 
 def spherical_to_cartesian(point):
     """
@@ -58,24 +76,27 @@ def process_raw_point(point, offset):
     Returns:
         A tuple of three numbers representing a position in x, y, z.
     """
-    pan, tilt, voltage = point
-    return spherical_to_cartesian((pan, tilt,
-                                   voltage_to_distance(voltage) + offset))
+    pan, faux_tilt, reading = point
+    voltage = reading_to_voltage(reading)
+    distance = voltage_to_distance(voltage) + offset
+    tilt = 90 - faux_tilt # 0 degrees should be vertical, not horizontal.
+
+    return spherical_to_cartesian((pan, tilt, distance))
 
 
-def process_raw_points(points, cutoff_voltage, offset):
+def process_raw_points(points, cutoff_voltage=0.5, offset=0):
     """
     Process raw points from the scan program.
 
     Converts from spherical coordinates with voltages as distance to Cartesian
-    coordinates in inches.
+    coordinates in centemeters.
 
     Filters out points where no object was detected (reading below threshold).
 
     Args:
         points: A list of tuples containing three ints. These ints represent
             pan, tilt, and the analogRead() result from the distance sensor.
-        cutoff_voltage: An int between 0 and 4095 representing the cutoff point
+        cutoff_voltage: An int between 0 and 1023 representing the cutoff point
             where a reading is considered not a real point.
         offset: A number representing the distance of the sensor from the
             center of the tilt/pan mechanism.
@@ -84,6 +105,30 @@ def process_raw_points(points, cutoff_voltage, offset):
         A list of tuples containing three numbers representing points in
         (x, y, z).
     """
+    # This code is a mess
+    threshold = voltage_to_reading(cutoff_voltage)
+
     return [process_raw_point(point, offset)
             for point in points
-            if point[2] <= cutoff_voltage]
+            if point[2] >= threshold]
+
+
+def plot_data(points):
+    """
+    Produce a plot of processed data points.
+
+    Evaluated for side effects.
+
+    Args:
+        points: A list of tuples containing processed datapoints.
+    """
+    # "unzip" a list of tuples into individual tuples.
+    x, y, z = zip(*points)
+
+    fig = plt.figure(figsize=(7, 4))
+    ax = fig.add_subplot(projection="3d")
+    ax.scatter(x, y, z)
+    ax.set_xlabel('X Label')
+    ax.set_ylabel('Y Label')
+    ax.set_zlabel('Z Label')
+    plt.show()
