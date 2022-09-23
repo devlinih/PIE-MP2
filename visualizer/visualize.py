@@ -108,15 +108,13 @@ def process_raw_points(points, cutoff_voltage=0.5, offset=0):
     threshold = voltage_to_reading(cutoff_voltage)
 
     return [process_raw_point(point, offset)
-            for point in points
-            if point[2] >= threshold]
+            for point in points]
+            # if point[2] >= threshold]
 
 
 def plot_data(points):
     """
     Produce a plot of processed data points.
-
-    Evaluated for side effects.
 
     Args:
         points: A list of tuples containing processed datapoints.
@@ -131,3 +129,13 @@ def plot_data(points):
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     plt.show()
+
+
+def plot_raw_data(raw_points):
+    """
+    Produce a plot from raw data points.
+
+    Args:
+        points: A list of tuples containing raw datapoints.
+    """
+    plot_data(process_raw_points(raw_points))

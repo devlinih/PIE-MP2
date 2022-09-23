@@ -1,10 +1,73 @@
 """
-User interface for scanner
+Command User Interface for scanner.
 """
 
-# Unknown if it's gonna be a GUI, TUI, or CLI
+import cmd
+import sys  # For interface
+import serial
+import time
 
-# Wrap main in a with statement for serial
+from arduino import (guess_port,
+                     scan,
+                     ARDUINO_TIMEOUT,
+                     BAUDRATE,)
+from visualize import plot_raw_data
 
-# Refactor Arduino serial functions to not create a new instance with with, but
-# rather be passed a serial instance. (more functional, much better).
+INITTIME = 3
+
+
+class ArduinoShell(cmd.Cmd):
+    """
+    Define command user interface for Arduino scanner.
+    """
+    intro = "Welcome to 3D scanner shell. Type help or ? to list commands.\n"
+    prompt = "command> "
+    ser = None  # Will be a serial connection
+    data = [(0, 0, 0)]  # Will be the scan data
+
+    def preloop(self):
+        """
+        Initialize before loop starts.
+        """
+        port = guess_port()
+        self.ser = serial.Serial(port, BAUDRATE,
+                                 timeout=ARDUINO_TIMEOUT)
+        print(f"Connecting to {port}, please wait")
+        time.sleep(INITTIME)
+
+    def postloop(self):
+        """
+        Close after exit.
+        """
+        self.ser.close()
+        print("Thank you for using our 3D scanner!")
+
+    # Commands
+
+    def do_scan(self, arg):
+        """
+        Start scan operation.
+        """
+        self.data = scan(self.ser)
+
+    def do_plot(self, arg):
+        """
+        Visualize data in a matplotlib plot.
+        """
+        plot_raw_data(self.data)
+
+    def do_exit(self, arg):
+        """
+        End program.
+        """
+        return True
+
+    def do_EOF(self, arg):
+        """
+        End program on C-d.
+        """
+        return True
+
+
+if __name__ == '__main__':
+    ArduinoShell().cmdloop()
