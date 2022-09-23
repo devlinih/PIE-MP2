@@ -6,7 +6,6 @@ String commandString = "";
 
 void setup () {
   Serial.begin(BAUD_RATE);
-  Serial.println("Hello World");
 }
 
 void loop () {
