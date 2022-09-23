@@ -10,9 +10,12 @@ bool scanning;              // global vaiable to indicate if the Arduimo should 
 int samples;                // the number of samples taken for each scan
 const int ALL_SAMPLES = 3;  // total number of samples per scan
 
+// set scanning resolution
+int tilt_interval = 20;     // 20 degrees
+int pan_interval = 5;       // 5 degrees
+
 // function prototypes for organization
 void readSerialBuffer();
-void panTilt();
 void sendData();
 
 // setup function to initialize hardware and software
@@ -34,21 +37,27 @@ void loop()
 {
   if (scanning == false)
   { // listen for python script to initiate scan
-    readSerialBuffer();
+    readSerialBuffer(); 
   }
   else
   { // do the scanning things
-    if (samples < ALL_SAMPLES)
+    for (int tilt_deg = 90; tilt_deg < 180; tilt_deg += tilt_interval) // tilt after each pan
     {
-      panTilt();
-      samples += 1;
-      sendData();
+      tilt.write(tilt_deg);
+      // big delay between pan cycles
+      delay (2000); // 2 sec
+      for (int pan_deg = 0; pan_deg < 180; pan_deg += pan_interval)  // pan across
+      {
+        // pan a bit
+        pan.write(pan_deg);
+        // small delay between pan scans
+        delay(150);
+        // send to python script
+        sendData();         
+      }
     }
-    else // finished scanning
-    {
-      // return to listening for the scan signal
-      scanning = false;
-    }
+    // return to listening for the scan signal
+    scanning = false;
   }
 }
 
@@ -66,20 +75,9 @@ void readSerialBuffer()
     // begin writing to serial
     Serial.print("[");
 
-    // empty sample count
-    samples = 0;
-
     // begin scanning in next loop
     scanning = true;
   }
-}
-
-void panTilt()
-{
-  // move servos a little bit
-  pan.write(90+(samples*10)); // PLACEHOLDER
-  pan.write(90-(samples*10)); // PLACEHOLDER
-  delay(150);
 }
 
 uint16_t readIR()
