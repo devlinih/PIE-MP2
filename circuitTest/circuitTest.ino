@@ -19,11 +19,8 @@ void loop () {
       for (int tilt = 0; tilt <= 90; tilt += 5) {
         for (int pan = 0; pan <= 180; pan += 5) {
           char dataPoint[40];
-          int distance = 5;
-          if ((30 <= tilt) && (pan <= 60)) {
-              distance = 3000;
-            }
-          sprintf(dataPoint, "(%d,%d,%d),", tilt, pan, distance);
+          int distance = 800;
+          sprintf(dataPoint, "(%d,%d,%d),", pan, tilt, distance);
           Serial.print(dataPoint);
         }
       }
