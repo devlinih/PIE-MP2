@@ -14,7 +14,6 @@ void loop () {
     commandString = Serial.readStringUntil('\n');
     // Return a set of points representing fake scan data on receiving SCAN
     if (commandString.equals("SCAN")) {
-      Serial.print("[");
       for (int tilt = 0; tilt <= 90; tilt += 5) {
         for (int pan = 0; pan <= 180; pan += 5) {
           char dataPoint[40];
@@ -23,7 +22,7 @@ void loop () {
           Serial.print(dataPoint);
         }
       }
-      Serial.println("]");
+      Serial.println();
     }
   }
 }
