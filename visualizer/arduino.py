@@ -33,8 +33,7 @@ def guess_port():
             return device.device
     return ""
 
-
-def scan(ser:serial.Serial):
+def send_command(ser:serial.Serial, command:str):
     """
     Send a SCAN command to the Arduino.
 
@@ -42,11 +41,13 @@ def scan(ser:serial.Serial):
 
     Args:
         ser: A serial connection to an Arduiono.
+        command: A string representing a command to send to the Arduino.
 
     Returns:
         A list of tuples representing datapoints.
     """
-    ser.write(b"SCAN\n")
+    message = bytes(command.strip() + "\n", "utf-8")
+    ser.write(message)
     data = ser.readline()
     # data is a bytestring, do some stuff to return it as a list
     formatted = "[" + data.decode("utf-8").strip() + "]"

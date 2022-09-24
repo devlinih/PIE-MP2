@@ -8,7 +8,7 @@ import serial
 import time
 
 from arduino import (guess_port,
-                     scan,
+                     send_command,
                      ARDUINO_TIMEOUT,
                      BAUDRATE,)
 from visualize import plot_raw_data
@@ -48,7 +48,7 @@ class ArduinoShell(cmd.Cmd):
         """
         Start scan operation.
         """
-        self.data = scan(self.ser)
+        self.data = send_command(self.ser, "SCAN")
 
     def do_plot(self, arg):
         """
