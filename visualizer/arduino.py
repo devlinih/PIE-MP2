@@ -49,7 +49,8 @@ def scan(ser:serial.Serial):
     ser.write(b"SCAN\n")
     data = ser.readline()
     # data is a bytestring, do some stuff to return it as a list
-    return ast.literal_eval(data.decode("utf-8").strip())
+    formatted = "[" + data.decode("utf-8").strip() + "]"
+    return ast.literal_eval(formatted)
 
 
 # TODO: Add code to interface with calibration command
