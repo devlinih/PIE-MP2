@@ -71,10 +71,10 @@ void scan1() // use only tilt servo
     if (tilt_deg < MAX_TILT_DEG)
     {
       Serial.print(",");
-    } 
+    }
   }
   // scan complete, return to listening
-  Serial.print("]");
+  Serial.println();
   state = LISTENING;
 }
 
@@ -98,11 +98,11 @@ void scan2() // uses both pan and tilt servos
       if (tilt_deg < MAX_TILT_DEG)
       {
         Serial.print(",");
-      } 
+      }
     }
   }
   // scan complete, return to listening
-  Serial.print("]");
+  Serial.println();
   state = LISTENING;
 }
 
@@ -116,15 +116,11 @@ void readSerialBuffer()
   command.trim();  // remove white space or \n
   if (command.substring(2) == "SCAN1")
   {
-    // begin writing to serial
-    Serial.print("[");
     // start scanning mode 1 in next loop
     state = SCAN1;
   }
   else if (command.substring(2) == "SCAN2")
   {
-    // begin writing to serial
-    Serial.print("[");
     // start scanning mode 2 in next loop
     state = SCAN2;
   }
@@ -135,9 +131,8 @@ void readSerialBuffer()
     pan.write(90);
 
     // send data over serial
-    Serial.print("[");
     sendData();
-    Serial.print("]");
+    Serial.println();
   }
 }
 
