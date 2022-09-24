@@ -23,6 +23,8 @@ void loop () {
         }
       }
       Serial.println();
+    } else if (commandString.equals("CALIBRATE")) {
+      Serial.println("(90,90,30)");
     }
   }
 }
