@@ -141,6 +141,7 @@ def plot_data(points):
     fig = plt.figure(figsize=(7, 4))
     ax = fig.add_subplot(projection="3d")
     ax.scatter(x, y, z)
+    ax.axis("equal")
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
