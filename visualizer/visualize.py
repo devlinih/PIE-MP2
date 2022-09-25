@@ -136,7 +136,11 @@ def plot_data(points):
         points: A list of tuples containing processed datapoints.
     """
     # "unzip" a list of tuples into individual tuples.
-    x, y, z = zip(*points)
+    try:
+        x, y, z = zip(*points)
+    except:
+        print("Error, no datapoints (try adjusting threshold)")
+        return
 
     fig = plt.figure(figsize=(7, 4))
     ax = fig.add_subplot(projection="3d")
