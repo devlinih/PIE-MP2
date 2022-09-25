@@ -8,9 +8,8 @@ from scipy.optimize import curve_fit
 
 
 # Convert voltages to Arduino readings
-DATASHEET_READINGS = list(map(lambda v: v*1023/5, [2.5, 2, 1.5, 1.25, 1,
-                                                    0.75, 0.5]))
-DATASHEET_DISTANCES = [20, 30, 40, 50, 60, 90, 130]
+DEFAULT_READINGS = [520, 389, 272, 206]
+DEFAULT_DISTANCES = [15, 30, 45, 60]
 
 
 def find_fit(readings, distances):
