@@ -12,7 +12,7 @@ from arduino import (guess_port,
                      ARDUINO_TIMEOUT,
                      BAUDRATE,)
 from visualize import (plot_raw_data,
-                       DATASHEET_READINGS,
+                       DEFAULT_READINGS,
                        DEFAULT_DISTANCES,
                        find_fit,)
 
@@ -27,7 +27,7 @@ class ArduinoShell(cmd.Cmd):
     prompt = "command> "
     ser = None  # Will be a serial connection
     data = [(0, 0, 0)]  # Will be the scan data
-    fit = find_fit(DATASHEET_READINGS, DEFAULT_DISTANCES)
+    fit = find_fit(DEFAULT_READINGS, DEFAULT_DISTANCES)
 
     # Collect calibration data
     cal_readings = []
