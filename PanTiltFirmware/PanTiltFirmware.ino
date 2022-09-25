@@ -75,11 +75,7 @@ void scan1() // use only tilt servo
     tilt.write(tilt_deg);
     delay(150);
     sendData();
-    // comma after tuple?
-    if (tilt_deg < MAX_TILT_DEG)
-    {
-      Serial.print(",");
-    }
+    Serial.print(",");
   }
   // scan complete, return to listening
   Serial.println();
