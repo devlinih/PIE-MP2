@@ -103,11 +103,7 @@ void scan2() // uses both pan and tilt servos
       pan.write(pan_deg); // pan a bit
       // send data over serial
       sendData();
-      // comma between readings
-      if (tilt_deg < MAX_TILT_DEG)
-      {
-        Serial.print(",");
-      }
+      Serial.print(",");
     }
   }
   // scan complete, return to listening
