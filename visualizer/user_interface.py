@@ -51,11 +51,17 @@ class ArduinoShell(cmd.Cmd):
         print("Thank you for using our 3D scanner!")
 
     # Arduino commands
-    def do_scan(self, arg):
+    def do_scan1(self, arg):
         """
         Start scan operation.
         """
-        self.data = send_command(self.ser, "SCAN")
+        self.data = send_command(self.ser, "SCAN1")
+
+    def do_scan2(self, arg):
+        """
+        Start scan operation.
+        """
+        self.data = send_command(self.ser, "SCAN2")
 
     def do_calibrate(self, arg):
         """
