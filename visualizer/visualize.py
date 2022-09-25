@@ -66,7 +66,7 @@ def spherical_to_cartesian(point):
     return x, y, z
 
 
-def process_raw_point(point, fit, offset):
+def process_raw_point(point, fit):
     """
     Process a raw point from the scan program.
 
@@ -75,8 +75,6 @@ def process_raw_point(point, fit, offset):
     Args:
         point: A tuple of three ints representing (pan, tilt, voltage).
         fit: A tuple containg coefficients a and b for a rational fit.
-        offset: A number representing the distance of the sensor from the
-            center of the tilt/pan mechanism.
 
     Returns:
         A tuple of three numbers representing a position in x, y, z.
@@ -87,7 +85,7 @@ def process_raw_point(point, fit, offset):
     return spherical_to_cartesian((pan, tilt, distance))
 
 
-def process_raw_points(points, fit, offset=0):
+def process_raw_points(points, fit):
     """
     Process raw points from the scan program.
 
@@ -100,14 +98,12 @@ def process_raw_points(points, fit, offset=0):
         points: A list of tuples containing three ints. These ints represent
             pan, tilt, and the analogRead() result from the distance sensor.
         fit: A tuple of coefficients a and b for a rational fit.
-        offset: A number representing the distance of the sensor from the
-            center of the tilt/pan mechanism.
 
     Returns:
         A list of tuples containing three numbers representing points in
         (x, y, z).
     """
-    return [process_raw_point(point, fit, offset)
+    return [process_raw_point(point, fit)
             for point in points]
 
 
