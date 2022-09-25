@@ -135,9 +135,9 @@ void readSerialBuffer()
   }
   else if (command.substring(2) == "CALIBRATE")
   {
-    // set servos to default position (WILL PROBABLY CHANGE ONCE BUILT)
-    tilt.write(90);
-    pan.write(90);
+    // set servos to default position
+    tilt.write(RESTING_TILT);
+    pan.write(RESTING_PAN);
 
     // send data over serial
     sendData();
