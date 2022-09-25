@@ -8,10 +8,13 @@ import serial
 import time
 
 from arduino import (guess_port,
-                     scan,
+                     send_command,
                      ARDUINO_TIMEOUT,
                      BAUDRATE,)
-from visualize import plot_raw_data
+from visualize import (plot_raw_data,
+                       DATASHEET_READINGS,
+                       DATASHEET_DISTANCES,
+                       find_fit,)
 
 INITTIME = 3
 
@@ -24,6 +27,11 @@ class ArduinoShell(cmd.Cmd):
     prompt = "command> "
     ser = None  # Will be a serial connection
     data = [(0, 0, 0)]  # Will be the scan data
+    fit = find_fit(DATASHEET_READINGS, DATASHEET_DISTANCES)
+
+    # Collect calibration data
+    cal_readings = []
+    cal_distances = []
 
     def preloop(self):
         """
@@ -42,20 +50,53 @@ class ArduinoShell(cmd.Cmd):
         self.ser.close()
         print("Thank you for using our 3D scanner!")
 
-    # Commands
-
-    def do_scan(self, arg):
+    # Arduino commands
+    def do_scan1(self, arg):
         """
         Start scan operation.
         """
-        self.data = scan(self.ser)
+        self.data = send_command(self.ser, "SCAN1")
+
+    def do_scan2(self, arg):
+        """
+        Start scan operation.
+        """
+        self.data = send_command(self.ser, "SCAN2")
+
+    def do_calibrate(self, arg):
+        """
+        Grab a datapoint for calibration at distance ARG.
+
+        calibrate DISTANCE
+        """
+        try:
+            distance = int(arg.strip())
+        except:
+            print("Invalid distance argument, assuming 20cm")
+            distance = 20
+
+        reading = send_command(self.ser, "CALIBRATE")[0][2]
+        self.cal_readings.append(reading)
+        self.cal_distances.append(distance)
+
+        print(f"Distances {self.cal_distances}")
+        print(f"Readings {self.cal_readings}")
+
+
+    # Plot commands
+    def do_new_calibration_fit(self, arg):
+        """
+        Generate new fit data from collected calibration points.
+        """
+        self.fit = find_fit(self.cal_readings, self.cal_distances)
 
     def do_plot(self, arg):
         """
         Visualize data in a matplotlib plot.
         """
-        plot_raw_data(self.data)
+        plot_raw_data(self.data, self.fit)
 
+    # Exit commands
     def do_exit(self, arg):
         """
         End program.
