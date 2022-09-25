@@ -13,9 +13,11 @@ const int RESTING_TILT = 60;  // tilt degree when flat
 // set scanning resolution
 const int TILT_INTERVAL1 = 2;               // Scan 1 resolution (degrees), MUST be evenly divisable by max-min tilt degrees
 const int TILT_INTERVAL2 = 2;               // degrees down between each pan row, MUST be evenly divisable by max-min tilt degrees
+const int PAN_INTERVAL = 2;                 // frequency of data scans per pan in degrees, MUST be evenly divisable by max-min pan degrees
+
+// breadth of scan sweep relative to resting positions
 const int MAX_TILT_DEG = RESTING_TILT +30;  // maximum tilt position (degree)
 const int MIN_TILT_DEG = RESTING_TILT -30;  // minimum tilt postion (degree)
-const int PAN_INTERVAL = 2;                 // frequency of data scans per pan in degrees, MUST be evenly divisable by max-min pan degrees
 const int MAN_PAN_DEG = RESTING_PAN +30;    // maximum pan position (degree)
 const int MIN_PAN_DEG = RESTING_PAN -30;    // minimum pan position (degree)
 
