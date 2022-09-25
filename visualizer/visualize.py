@@ -3,9 +3,9 @@ Visualize data points from 3D scanner.
 """
 
 import math
+
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
-
 
 # Convert voltages to Arduino readings
 DEFAULT_READINGS = [520, 389, 272, 206]
@@ -43,6 +43,26 @@ def reading_to_distance(reading, fit):
     """
     a, b = fit
     return a/(b + reading)
+
+
+def plot_fit_curve(fit):
+    """
+    Produce a plot of the fit curve.
+
+    Args:
+        fit: A tuple representing coefficients a and b for rational curve fit.
+    """
+    readings = range(80, 1023)
+    voltages = [reading*5/1023 for reading in readings]
+    distances = [reading_to_distance(reading, fit) for reading in readings]
+
+    fig = plt.figure(figsize=(7, 4))
+    plt.plot(voltages, distances, "r")
+    plt.xlim([0, 5])
+    plt.ylim([0, 200])
+    plt.xlabel("Measured Voltage (V)", fontsize=12)
+    plt.ylabel("Calculated Distance (cm)", fontsize=12)
+    plt.show()
 
 
 def spherical_to_cartesian(point):
