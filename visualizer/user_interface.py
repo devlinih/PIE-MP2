@@ -14,7 +14,9 @@ from arduino import (guess_port,
 from visualize import (plot_raw_data,
                        DEFAULT_READINGS,
                        DEFAULT_DISTANCES,
-                       find_fit,)
+                       find_fit,
+                       plot_fit_curve,
+                       plot_fit_curve_error)
 
 INITTIME = 3
 
@@ -82,19 +84,38 @@ class ArduinoShell(cmd.Cmd):
         print(f"Distances {self.cal_distances}")
         print(f"Readings {self.cal_readings}")
 
-
     # Plot commands
+
     def do_new_calibration_fit(self, arg):
         """
         Generate new fit data from collected calibration points.
         """
         self.fit = find_fit(self.cal_readings, self.cal_distances)
 
+    def do_show_calibration_fit(self, arg):
+        """
+        Plot the current calibration curve.
+        """
+        plot_fit_curve(self.fit)
+
+    def do_show_calibration_fit_error(self, arg):
+        """
+        Plot the current calibration curve against collected points.
+        """
+        plot_fit_curve_error(self.fit, self.cal_readings, self.cal_distances)
+
     def do_plot(self, arg):
         """
         Visualize data in a matplotlib plot.
+
+        Takes a threshold argument.
         """
-        plot_raw_data(self.data, self.fit)
+        try:
+            threshold = int(arg.strip())
+        except:
+            threshold = 50
+
+        plot_raw_data(self.data, self.fit, threshold)
 
     # Exit commands
     def do_exit(self, arg):

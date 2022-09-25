@@ -3,9 +3,9 @@ Visualize data points from 3D scanner.
 """
 
 import math
+
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
-
 
 # Convert voltages to Arduino readings
 DEFAULT_READINGS = [520, 389, 272, 206]
@@ -45,6 +45,55 @@ def reading_to_distance(reading, fit):
     return a/(b + reading)
 
 
+def plot_fit_curve(fit):
+    """
+    Produce a plot of the fit curve.
+
+    Args:
+        fit: A tuple representing coefficients a and b for rational curve fit.
+    """
+    readings = range(80, 1023)
+    voltages = [reading*5/1023 for reading in readings]
+    distances = [reading_to_distance(reading, fit) for reading in readings]
+
+    fig = plt.figure()
+    plt.plot(voltages, distances, "r")
+    plt.xlim([0, 5])
+    plt.ylim([0, 200])
+    plt.xlabel("Measured Voltage (V)", fontsize=12)
+    plt.ylabel("Calculated Distance (cm)", fontsize=12)
+    plt.show()
+
+
+def plot_fit_curve_error(fit, readings, distances):
+    """
+    Produce a plot of the fit curve against datapoints.
+
+    Args:
+        fit: A tuple representing coefficients a and b for rational curve fit.
+        readings: Known Arduino readings.
+        distances: Known measured distances.
+    """
+    readings_theory = range(80, 1023)
+    voltages_theory = [reading*5/1023 for reading in readings_theory]
+    distances_theory = [reading_to_distance(reading, fit)
+                        for reading in readings_theory]
+
+    voltages = [reading*5/1023 for reading in readings]
+
+    fig = plt.figure()
+    plt.plot(voltages_theory, distances_theory, "r",
+             label="Calibration Curve")
+    plt.plot(voltages, distances, "ok",
+             label="Actual Datapoints")
+    plt.legend()
+    plt.xlim([0, 5])
+    plt.ylim([0, 200])
+    plt.xlabel("Measured Voltage (V)", fontsize=12)
+    plt.ylabel("Calculated Distance (cm)", fontsize=12)
+    plt.show()
+
+
 def spherical_to_cartesian(point):
     """
     Convert a point in spherical coordinates to a point in cartesian coordinates.
@@ -66,7 +115,7 @@ def spherical_to_cartesian(point):
     return x, y, z
 
 
-def process_raw_point(point, fit, offset):
+def process_raw_point(point, fit):
     """
     Process a raw point from the scan program.
 
@@ -75,8 +124,6 @@ def process_raw_point(point, fit, offset):
     Args:
         point: A tuple of three ints representing (pan, tilt, voltage).
         fit: A tuple containg coefficients a and b for a rational fit.
-        offset: A number representing the distance of the sensor from the
-            center of the tilt/pan mechanism.
 
     Returns:
         A tuple of three numbers representing a position in x, y, z.
@@ -87,7 +134,7 @@ def process_raw_point(point, fit, offset):
     return spherical_to_cartesian((pan, tilt, distance))
 
 
-def process_raw_points(points, fit, offset=0):
+def process_raw_points(points, fit, threshold):
     """
     Process raw points from the scan program.
 
@@ -100,15 +147,14 @@ def process_raw_points(points, fit, offset=0):
         points: A list of tuples containing three ints. These ints represent
             pan, tilt, and the analogRead() result from the distance sensor.
         fit: A tuple of coefficients a and b for a rational fit.
-        offset: A number representing the distance of the sensor from the
-            center of the tilt/pan mechanism.
 
     Returns:
         A list of tuples containing three numbers representing points in
         (x, y, z).
     """
-    return [process_raw_point(point, fit, offset)
-            for point in points]
+    return [process_raw_point(point, fit)
+            for point in points
+            if point[2] >= threshold]
 
 
 def plot_data(points):
@@ -119,18 +165,23 @@ def plot_data(points):
         points: A list of tuples containing processed datapoints.
     """
     # "unzip" a list of tuples into individual tuples.
-    x, y, z = zip(*points)
+    try:
+        x, y, z = zip(*points)
+    except:
+        print("Error, no datapoints (try adjusting threshold)")
+        return
 
-    fig = plt.figure(figsize=(7, 4))
+    fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
     ax.scatter(x, y, z)
+    ax.axis("equal")
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
     plt.show()
 
 
-def plot_raw_data(raw_points, fit):
+def plot_raw_data(raw_points, fit, threshold):
     """
     Produce a plot from raw data points.
 
@@ -138,4 +189,4 @@ def plot_raw_data(raw_points, fit):
         points: A list of tuples containing raw datapoints.
         fit: A tuple containing coefficients a and b for a rational fit.
     """
-    plot_data(process_raw_points(raw_points, fit))
+    plot_data(process_raw_points(raw_points, fit, threshold))
