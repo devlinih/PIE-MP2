@@ -15,7 +15,8 @@ from visualize import (plot_raw_data,
                        DEFAULT_READINGS,
                        DEFAULT_DISTANCES,
                        find_fit,
-                       plot_fit_curve)
+                       plot_fit_curve,
+                       plot_fit_curve_error)
 
 INITTIME = 3
 
@@ -96,6 +97,12 @@ class ArduinoShell(cmd.Cmd):
         Plot the current calibration curve.
         """
         plot_fit_curve(self.fit)
+
+    def do_show_calibration_fit_error(self, arg):
+        """
+        Plot the current calibration curve against collected points.
+        """
+        plot_fit_curve_error(self.fit, self.cal_readings, self.cal_distances)
 
     def do_plot(self, arg):
         """

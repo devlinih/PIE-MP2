@@ -56,8 +56,37 @@ def plot_fit_curve(fit):
     voltages = [reading*5/1023 for reading in readings]
     distances = [reading_to_distance(reading, fit) for reading in readings]
 
-    fig = plt.figure(figsize=(7, 4))
+    fig = plt.figure()
     plt.plot(voltages, distances, "r")
+    plt.xlim([0, 5])
+    plt.ylim([0, 200])
+    plt.xlabel("Measured Voltage (V)", fontsize=12)
+    plt.ylabel("Calculated Distance (cm)", fontsize=12)
+    plt.show()
+
+
+def plot_fit_curve_error(fit, readings, distances):
+    """
+    Produce a plot of the fit curve against datapoints.
+
+    Args:
+        fit: A tuple representing coefficients a and b for rational curve fit.
+        readings: Known Arduino readings.
+        distances: Known measured distances.
+    """
+    readings_theory = range(80, 1023)
+    voltages_theory = [reading*5/1023 for reading in readings_theory]
+    distances_theory = [reading_to_distance(reading, fit)
+                        for reading in readings_theory]
+
+    voltages = [reading*5/1023 for reading in readings]
+
+    fig = plt.figure()
+    plt.plot(voltages_theory, distances_theory, "r",
+             label="Calibration Curve")
+    plt.plot(voltages, distances, "ok",
+             label="Actual Datapoints")
+    plt.legend()
     plt.xlim([0, 5])
     plt.ylim([0, 200])
     plt.xlabel("Measured Voltage (V)", fontsize=12)
@@ -142,7 +171,7 @@ def plot_data(points):
         print("Error, no datapoints (try adjusting threshold)")
         return
 
-    fig = plt.figure(figsize=(7, 4))
+    fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
     ax.scatter(x, y, z)
     ax.axis("equal")
