@@ -123,17 +123,17 @@ void readSerialBuffer()
   }
   String command = Serial.readStringUntil('\n'); // read until timeout
   command.trim();  // remove white space or \n
-  if (command.substring(2) == "SCAN1")
+  if (command.equals("SCAN1"))
   {
     // start scanning mode 1 in next loop
     state = SCAN1;
   }
-  else if (command.substring(2) == "SCAN2")
+  else if (command.equals("SCAN2"))
   {
     // start scanning mode 2 in next loop
     state = SCAN2;
   }
-  else if (command.substring(2) == "CALIBRATE")
+  else if (command.equals("CALIBRATE"))
   {
     // set servos to default position
     tilt.write(RESTING_TILT);
