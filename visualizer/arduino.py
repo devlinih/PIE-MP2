@@ -18,7 +18,6 @@ ARDUINO_IDS = ((0x2341, 0x0043), (0x2341, 0x0001),
                (0x0403, 0x6001), (0x1A86, 0x7523))
 
 
-
 def guess_port():
     """
     Try to find an Arduino connected to the computer.
@@ -33,7 +32,8 @@ def guess_port():
             return device.device
     return ""
 
-def send_command(ser:serial.Serial, command:str):
+
+def send_command(ser: serial.Serial, command: str):
     """
     Send a SCAN command to the Arduino.
 
