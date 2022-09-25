@@ -52,6 +52,3 @@ def send_command(ser: serial.Serial, command: str):
     # data is a bytestring, do some stuff to return it as a list
     formatted = "[" + data.decode("utf-8").strip() + "]"
     return ast.literal_eval(formatted)
-
-
-# TODO: Add code to interface with calibration command
