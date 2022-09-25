@@ -93,8 +93,15 @@ class ArduinoShell(cmd.Cmd):
     def do_plot(self, arg):
         """
         Visualize data in a matplotlib plot.
+
+        Takes a threshold argument.
         """
-        plot_raw_data(self.data, self.fit)
+        try:
+            threshold = int(arg.strip())
+        except:
+            threshold = 50
+
+        plot_raw_data(self.data, self.fit, threshold)
 
     # Exit commands
     def do_exit(self, arg):

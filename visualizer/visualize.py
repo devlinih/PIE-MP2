@@ -85,7 +85,7 @@ def process_raw_point(point, fit):
     return spherical_to_cartesian((pan, tilt, distance))
 
 
-def process_raw_points(points, fit):
+def process_raw_points(points, fit, threshold):
     """
     Process raw points from the scan program.
 
@@ -104,7 +104,8 @@ def process_raw_points(points, fit):
         (x, y, z).
     """
     return [process_raw_point(point, fit)
-            for point in points]
+            for point in points
+            if point[2] >= threshold]
 
 
 def plot_data(points):
@@ -126,7 +127,7 @@ def plot_data(points):
     plt.show()
 
 
-def plot_raw_data(raw_points, fit):
+def plot_raw_data(raw_points, fit, threshold):
     """
     Produce a plot from raw data points.
 
@@ -134,4 +135,4 @@ def plot_raw_data(raw_points, fit):
         points: A list of tuples containing raw datapoints.
         fit: A tuple containing coefficients a and b for a rational fit.
     """
-    plot_data(process_raw_points(raw_points, fit))
+    plot_data(process_raw_points(raw_points, fit, threshold))
