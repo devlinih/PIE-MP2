@@ -82,8 +82,8 @@ def process_raw_point(point, fit, offset):
     Returns:
         A tuple of three numbers representing a position in x, y, z.
     """
-    pan = math.radians(point[0])
-    tilt = math.radians(90 - point[1])
+    pan = math.radians(point[0] + 8)
+    tilt = math.radians(point[1] + 30)
     distance = reading_to_distance(point[2], fit)
     return spherical_to_cartesian((pan, tilt, distance))
 
