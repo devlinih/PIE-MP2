@@ -7,22 +7,23 @@ const int SENSOR = 0;         // IR distance sensor on A0
 Servo pan;                    // create servo object for pan
 Servo tilt;                   // create servo object for tilt
 
-const int RESTING_PAN = 82;   // pan degree when straight
-const int RESTING_TILT = 60;  // tilt degree when flat
+const int LEVEL_PAN = 82;     // pan degree when straight
+const int LEVEL_TILT = 60;    // tilt degree when flat
 
 // set scanning resolution
-const int TILT_INTERVAL1 = 2;               // Scan 1 resolution (degrees), MUST be evenly divisable by max-min tilt degrees
-const int TILT_INTERVAL2 = 2;               // degrees down between each pan row, MUST be evenly divisable by max-min tilt degrees
-const int PAN_INTERVAL = 2;                 // frequency of data scans per pan in degrees, MUST be evenly divisable by max-min pan degrees
+const int TILT_INTERVAL1 = 2; // Scan 1 resolution (degrees), MUST be evenly divisible by max-min tilt degrees
+const int TILT_INTERVAL2 = 2; // degrees down between each pan row, MUST be evenly divisible by max-min tilt degrees
+const int PAN_INTERVAL = 2;   // frequency of data scans per pan (degrees), MUST be evenly divisible by max-min pan degrees
 
 // breadth of scan sweep relative to resting positions
-const int MAX_TILT_DEG = RESTING_TILT +30;  // maximum tilt position (degree)
-const int MIN_TILT_DEG = RESTING_TILT -30;  // minimum tilt postion (degree)
-const int MAN_PAN_DEG = RESTING_PAN +30;    // maximum pan position (degree)
-const int MIN_PAN_DEG = RESTING_PAN -30;    // minimum pan position (degree)
+const int MAX_TILT_DEG = LEVEL_TILT +30;  // maximum tilt position (degree)
+const int MIN_TILT_DEG = LEVEL_TILT -30;  // minimum tilt position (degree)
+const int MAN_PAN_DEG = LEVEL_PAN +30;    // maximum pan position (degree)
+const int MIN_PAN_DEG = LEVEL_PAN -30;    // minimum pan position (degree)
 
+// Define the enumerated types for state machine
 enum states
-{ // Defines the enumerated types for state machine
+{
   LISTENING,
   SCAN1,
   SCAN2
@@ -46,8 +47,8 @@ void setup()
   tilt.attach(5); // Servo on D5
 
   // set servos to resting position
-  pan.write(RESTING_PAN);
-  tilt.write(RESTING_TILT);
+  pan.write(LEVEL_PAN);
+  tilt.write(LEVEL_TILT);
 
   // wait for signal
   state = LISTENING;
@@ -130,8 +131,8 @@ void readSerialBuffer()
   else if (command.equals("CALIBRATE"))
   {
     // set servos to default position
-    tilt.write(RESTING_TILT);
-    pan.write(RESTING_PAN);
+    tilt.write(LEVEL_TILT);
+    pan.write(LEVEL_PAN);
 
     // send data over serial
     sendData();
